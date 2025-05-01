@@ -28,41 +28,57 @@ struct _MainTabView: View {
     
     var body: some View {
         VStack {
-            
-            // top: tab selection bar
-            HStack {
-                Spacer()
-                ForEach(tabs, id: \.id) { tab in
-                    Image(systemName: tab.icon)
-                        .font(.system(size:25))
-                        .foregroundStyle(tab.id == selectedTab ? tab.color : .gray.opacity(0.7))
-                        .onTapGesture {
-                            withAnimation(.easeInOut(duration: 0.5)) {
-                                selectedTab = tab.id
-                            }
-                        }
-                    Spacer()
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .frame(height: 45)
-            
-            
-            // middle: tab content
-            TabView(selection: $selectedTab) {
-                Tab0View()
-                    .tag(0)
-                
-                Tab1View()
-                    .tag(1)
-                
-                Tab2View()
-                    .tag(2)
-            }
+            tabSelectionIcons
+            tabViewContent
         }
     }
 }
 
+
+
 #Preview {
     _MainTabView()
+}
+
+
+
+
+extension _MainTabView {
+ 
+    private var tabSelectionIcons: some View {
+        HStack {
+            Spacer()
+            ForEach(tabs, id: \.id) { tab in
+                Image(systemName: tab.icon)
+                    .font(.system(size:25))
+                    .foregroundStyle(tab.id == selectedTab ? tab.color : .gray.opacity(0.7))
+                    .onTapGesture {
+                        withAnimation(.easeInOut(duration: 0.5)) {
+                            selectedTab = tab.id
+                        }
+                    }
+                Spacer()
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 45)
+    }
+    
+    
+    private var tabViewContent: some View {
+        
+        TabView(selection: $selectedTab) {
+            Tab0View()
+                .tag(0)
+            
+            Tab1View()
+                .tag(1)
+            
+            Tab2View()
+                .tag(2)
+        }
+        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+    }
+    
+    
 }

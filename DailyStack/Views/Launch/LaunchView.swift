@@ -1,6 +1,5 @@
 //
 //  LaunchScreen.swift
-//  RoboCrypto
 //
 //  Created by Robin O'Brien on 2025-04-15.
 //
@@ -8,6 +7,7 @@
 import SwiftUI
 
 struct LaunchView: View {
+    
     @Binding var showLaunchView: Bool
     @State private var showLoadingText: Bool = false
     @State private var loops: Int = 0
@@ -18,9 +18,9 @@ struct LaunchView: View {
     var body: some View {
         ZStack {
             
-            // background
+            // background and logo
             ZStack {
-                Color.black
+                Color.launch.background
                     .ignoresSafeArea()
                 
                 Image(systemName: "applelogo")
@@ -30,6 +30,7 @@ struct LaunchView: View {
                     .foregroundStyle(.secondary)
                     .padding(.bottom, 50)
             }
+            
             
             // content
             if showLoadingText {

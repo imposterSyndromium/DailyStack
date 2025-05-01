@@ -10,7 +10,8 @@ import SwiftUI
 struct Tab0View: View {
     var body: some View {
         VStack {
-            Text("Tab 0")
+            TaskCardView(task: Task.sampleTasks[0])
+                
         }
     }
 }
