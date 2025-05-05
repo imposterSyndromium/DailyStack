@@ -8,6 +8,11 @@
 import SwiftUI
 
 struct Tab1View: View {
+    
+    init() {
+        print("Tab1View init")
+    }
+    
     var body: some View {
         VStack {
             Text("Tab 1")

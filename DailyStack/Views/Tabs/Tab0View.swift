@@ -8,12 +8,18 @@
 import SwiftUI
 
 struct Tab0View: View {
+    
+    init() {
+        print("Tab0View init")
+    }
+    
+    
     var body: some View {
         VStack {
-            TaskCardView(task: Task.sampleTasks[0])
-                
+            TaskCardView(task: Task.sampleTasks[0])                
         }
     }
+    
 }
 
 #Preview {

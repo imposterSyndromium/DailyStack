@@ -31,6 +31,8 @@ struct _MainTabView: View {
             tabSelectionIcons
             tabViewContent
         }
+        .background(.ultraThinMaterial)
+        
     }
 }
 
@@ -77,7 +79,7 @@ extension _MainTabView {
             Tab2View()
                 .tag(2)
         }
-        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
     }
     
     
