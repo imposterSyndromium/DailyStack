@@ -10,87 +10,88 @@ import SwiftUI
 struct TaskCardView: View {
     var task: Task
     @State private var offset: CGSize = .zero
-    @State private var scale: CGFloat = 1.0
-    @State private var rotation: Double = 0.0
-    @State private var vertical3DRotation: Double = 0.0
-    @State private var horizontal3DRotation: Double = 0.0
     
     var body: some View {
-        ZStack {
-            // Card background
-            RoundedRectangle(cornerRadius: 20)
-                .foregroundColor(.white)
-                .shadow(color: .gray, radius: 5, x: 2, y: 4)
-            
-            // Card content
-            VStack {
-                Spacer()
-                
-                Text("x Axis: \(offset.width, specifier: "%.2f")")
-                    .padding(.bottom, 5)
-                Text("y Axis: \(offset.height, specifier: "%.2f")")
-                
-                Spacer()
-            }
-            .padding()
-        }
-        .padding()
-        // Apply all transformations to the entire ZStack
-        .offset(offset)
-        .scaleEffect(getScaleAmount())
-        .rotation3DEffect(
-            .degrees(getVertical3DRotationAmount()),
-            axis: (x: -1.0, y: 0.0, z: 0.0),
-            anchor: .center,
-            anchorZ: 0.0,
-            perspective: 0.5
-        )
-        .rotation3DEffect(
-            .degrees(getHorizontal3DRotationAmount()),
-            axis: (x: 0.0, y: -1.0, z: 0.0),
-            anchor: .center,
-            anchorZ: 0.0,
-            perspective: 0.5
-        )
-        .rotationEffect(.degrees(getRotationAmount()), anchor: .bottom)
-        .gesture(
-            DragGesture()
-                .onChanged { value in
-                    self.offset = value.translation
-                }
-                .onEnded { value in
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
-                        //Use absolute values to determine which dimension is dominant (positive or negative are irrelevant)
-                        if abs(offset.width) > abs(offset.height) {
-                            
-                            if offset.width > 200 {
-                                self.offset.width = 500
-                            } else if offset.width < -200 {
-                                self.offset.width = -500
-                            } else {
-                                self.offset = .zero
-                            }
-                            
-                        } else if abs(offset.height) > abs(offset.width) {
-                            
-                            if offset.height > 200 {
-                                self.offset.height = 500
-                            } else if offset.height < -200 {
-                                self.offset.height = -500
-                            } else {
-                                self.offset = .zero
-                            }
-                            
-                        } else {
-                            self.offset = .zero
-                        }
+        TaskCardDetailView(offset: $offset)
+            .padding()        
+            .offset(offset)
+            .scaleEffect(getScaleAmount())
+            .rotation3DEffect(
+                .degrees(getVertical3DRotationAmount()),
+                axis: (x: -1.0, y: 0.0, z: 0.0),
+                anchor: .center,
+                anchorZ: 0.0,
+                perspective: 0.5
+            )
+            .rotation3DEffect(
+                .degrees(getHorizontal3DRotationAmount()),
+                axis: (x: 0.0, y: -1.0, z: 0.0),
+                anchor: .center,
+                anchorZ: 0.0,
+                perspective: 0.5
+            )
+            .rotationEffect(.degrees(getRotationAmount()), anchor: .bottom)
+            .gesture(
+                DragGesture()
+                    .onChanged { value in
+                        self.offset = value.translation
                     }
-                }
-        )
+                    .onEnded { value in
+                        // Determine which action to take based on drag distance
+                        if abs(offset.width) > 200 || abs(offset.height) > 200 {
+                            // Card was dragged far enough to dismiss
+                            performDismissAnimation()
+                        } else {
+                            // Card wasn't dragged far enough, reset with smooth animation
+                            resetCardPosition()
+                        }
+                        
+                        // For debugging choppy animations, you can print offset values
+                        // print("Ending drag with offset: \(offset)")
+                    }
+            )
     }
     
+    // MARK: - Animation Functions
     
+    /// Smoothly resets the card position to the center with a fluid spring animation
+    private func resetCardPosition() {
+        // Use a single, smoother animation with carefully tuned spring parameters
+        withAnimation(.spring(
+            response: 0.5,        // Slightly slower response for smoother motion
+            dampingFraction: 0.65, // Balanced damping for a natural feel
+            blendDuration: 0.3    // Helps blend animations more smoothly
+        )) {
+            self.offset = .zero
+        }
+    }
     
+    /// Animates the card off screen when dismissed
+    private func performDismissAnimation() {
+        withAnimation(.spring(
+            response: 0.5,
+            dampingFraction: 0.7,
+            blendDuration: 0.2
+        )) {
+            // Determine which direction to animate based on which dimension has larger offset
+            if abs(offset.width) > abs(offset.height) {
+                // Horizontal swipe dominates
+                let screenWidth = UIScreen.main.bounds.width
+                self.offset.width = offset.width > 0 ? screenWidth : -screenWidth
+                // Keep vertical position consistent for a smoother animation
+                self.offset.height = self.offset.height
+            } else {
+                // Vertical swipe dominates
+                let screenHeight = UIScreen.main.bounds.height
+                self.offset.height = offset.height > 0 ? screenHeight : -screenHeight
+                // Keep horizontal position consistent for a smoother animation
+                self.offset.width = self.offset.width
+            }
+        }
+        
+        // Here you could add code to actually remove the card or perform other actions
+        // after the dismiss animation completes
+    }
     
     // MARK: - Helper Functions
     
@@ -122,7 +123,6 @@ struct TaskCardView: View {
         return 1.0 - min(percentage, 0.5) * 0.5
     }
     
-    
     func getRotationAmount() -> Double {
         let max = UIScreen.main.bounds.width / 2
         let currentAmount = offset.width
@@ -131,7 +131,6 @@ struct TaskCardView: View {
         let maxAngle: Double = 10
         return percentageAsDouble * maxAngle
     }
-    
     
     func getVertical3DRotationAmount() -> Double {
         let maxHeight = UIScreen.main.bounds.height / 2
@@ -142,7 +141,6 @@ struct TaskCardView: View {
         
         return percentageAsDouble * maxAngle
     }
-    
     
     func getHorizontal3DRotationAmount() -> Double {
         let maxWidth = UIScreen.main.bounds.width / 2
